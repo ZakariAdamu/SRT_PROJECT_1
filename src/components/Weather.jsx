@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./Weather.css";
 import search_icon from "../assets/search.png";
 import clear_icon from "../assets/clear.png";
@@ -10,20 +10,47 @@ import snow_icon from "../assets/snow.png";
 import wind_icon from "../assets/wind.png";
 
 const Weather = () => {
+	const [weatherData, setWeatherData] = useState(false);
+
+	const weatherIcons = {
+		"01d": clear_icon,
+		"01n": clear_icon,
+		"02d": cloud_icon,
+		"02n": cloud_icon,
+		"03d": cloud_icon,
+		"03n": cloud_icon,
+		"04d": drizzle_icon,
+		"04n": drizzle_icon,
+		"09d": rain_icon,
+		"09n": rain_icon,
+		"10d": rain_icon,
+		"10n": rain_icon,
+		"13d": snow_icon,
+		"13n": snow_icon,
+	};
+
 	const searchCity = async (city) => {
 		try {
-			const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${
+			const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${
 				import.meta.env.VITE_APP_ID
 			}`;
 
 			const response = await fetch(url);
 			const data = await response.json();
+			const icon = weatherIcons[data.weather[0].icon] || clear_icon;
 			console.log(data);
+			setWeatherData({
+				humidity: data.main.humidity,
+				windSpeed: data.wind.speed,
+				temperature: Math.round(data.main.temp),
+				location: data.name,
+				icon: icon,
+			});
 		} catch (error) {}
 	};
 
 	useEffect(() => {
-		searchCity("London");
+		searchCity("paris");
 	}, []);
 	return (
 		<div className="weather">
@@ -31,21 +58,21 @@ const Weather = () => {
 				<input type="text" placeholder="Search city..." />
 				<img src={search_icon} alt="search icon" />
 			</div>
-			<img src={clear_icon} alt="weather icon" className="weather-icon" />
-			<p className="temperature">16 &deg;C</p>
-			<p className="location">London</p>
+			<img src={weatherData.icon} alt="weather icon" className="weather-icon" />
+			<p className="temperature">{weatherData.temperature} &deg;C</p>
+			<p className="location">{weatherData.location}</p>
 			<div className="weather-data">
 				<div className="col">
 					<img src={humidity_icon} alt="weather condition icon" />
 					<div className="">
-						<p>70%</p>
+						<p>{weatherData.humidity}%</p>
 						<span>Humidity</span>
 					</div>
 				</div>
 				<div className="col">
 					<img src={wind_icon} alt="weather condition icon" />
 					<div className="">
-						<p>3.6 Km/h</p>
+						<p>{weatherData.windSpeed} Km/h</p>
 						<span>Wind Speed</span>
 					</div>
 				</div>
