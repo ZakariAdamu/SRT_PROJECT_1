@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import "./Weather.css";
 import search_icon from "../assets/search.png";
 import clear_icon from "../assets/clear.png";
@@ -10,7 +10,7 @@ import snow_icon from "../assets/snow.png";
 import wind_icon from "../assets/wind.png";
 
 const Weather = () => {
-	const inputRef = useRef();
+	const [searchQuery, setSearchQuery] = useState("");
 	const [weatherData, setWeatherData] = useState(false);
 
 	const weatherIcons = {
@@ -30,6 +30,7 @@ const Weather = () => {
 		"13n": snow_icon,
 	};
 
+	// Function to fetch weather data for the user's location
 	const searchCity = async (city) => {
 		if (city === "") {
 			alert("Please enter a city name");
@@ -65,18 +66,27 @@ const Weather = () => {
 		}
 	};
 
-	useEffect(() => {
-		searchCity("");
-	}, []);
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		searchCity(searchQuery);
+	};
+
 	return (
 		<div className="weather">
 			<div className="search-bar">
-				<input ref={inputRef} type="text" placeholder="Search city..." />
-				<img
-					src={search_icon}
-					alt="search icon"
-					onClick={() => searchCity(inputRef.current.value)}
-				/>
+				<form onSubmit={handleSubmit}>
+					<input
+						type="text"
+						placeholder="Search city"
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+					/>
+					<img
+						src={search_icon}
+						alt="search icon"
+						onClick={() => searchCity(searchQuery)}
+					/>
+				</form>
 			</div>
 
 			{weatherData ? (
